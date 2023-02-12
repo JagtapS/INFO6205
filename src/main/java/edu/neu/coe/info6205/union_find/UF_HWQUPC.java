@@ -2,8 +2,7 @@
  * Original code:
  * Copyright © 2000–2017, Robert Sedgewick and Kevin Wayne.
  * <p>
- * Modifications:
- * Copyright (c) 2017. Phasmid Software
+ * Modifications: Copyright (c) 2017. Phasmid Software
  */
 package edu.neu.coe.info6205.union_find;
 
@@ -13,6 +12,7 @@ import java.util.Arrays;
  * Height-weighted Quick Union with Path Compression
  */
 public class UF_HWQUPC implements UF {
+
     /**
      * Ensure that site p is connected to site q,
      *
@@ -20,7 +20,9 @@ public class UF_HWQUPC implements UF {
      * @param q the integer representing the other site
      */
     public void connect(int p, int q) {
-        if (!isConnected(p, q)) union(p, q);
+        if (!isConnected(p, q)) {
+            union(p, q);
+        }
     }
 
     /**
@@ -28,7 +30,7 @@ public class UF_HWQUPC implements UF {
      * {@code 0} through {@code n-1}. Each site is initially in its own
      * component.
      *
-     * @param n               the number of sites
+     * @param n the number of sites
      * @param pathCompression whether to use path compression
      * @throws IllegalArgumentException if {@code n < 0}
      */
@@ -46,8 +48,7 @@ public class UF_HWQUPC implements UF {
     /**
      * Initializes an empty union–find data structure with {@code n} sites
      * {@code 0} through {@code n-1}. Each site is initially in its own
-     * component.
-     * This data structure uses path compression
+     * component. This data structure uses path compression
      *
      * @param n the number of sites
      * @throws IllegalArgumentException if {@code n < 0}
@@ -72,17 +73,23 @@ public class UF_HWQUPC implements UF {
     }
 
     /**
-     * Returns the component identifier for the component containing site {@code p}.
+     * Returns the component identifier for the component containing site
+     * {@code p}.
      *
      * @param p the integer representing one site
-     * @return the component identifier for the component containing site {@code p}
+     * @return the component identifier for the component containing site
+     * {@code p}
      * @throws IllegalArgumentException unless {@code 0 <= p < n}
      */
     public int find(int p) {
         validate(p);
         int root = p;
         // FIXME
-        //Implement here 
+
+        while (parent[root] != root) {
+            doPathCompression(root);
+            root = parent[root];
+        }
         // END 
         return root;
     }
@@ -92,23 +99,23 @@ public class UF_HWQUPC implements UF {
      *
      * @param p the integer representing one site
      * @param q the integer representing the other site
-     * @return {@code true} if the two sites {@code p} and {@code q} are in the same component;
-     * {@code false} otherwise
-     * @throws IllegalArgumentException unless
-     *                                  both {@code 0 <= p < n} and {@code 0 <= q < n}
+     * @return {@code true} if the two sites {@code p} and {@code q} are in the
+     * same component; {@code false} otherwise
+     * @throws IllegalArgumentException unless both {@code 0 <= p < n} and
+     * {@code 0 <= q < n}
      */
     public boolean connected(int p, int q) {
         return find(p) == find(q);
     }
 
     /**
-     * Merges the component containing site {@code p} with the
-     * the component containing site {@code q}.
+     * Merges the component containing site {@code p} with the the component
+     * containing site {@code q}.
      *
      * @param p the integer representing one site
      * @param q the integer representing the other site
-     * @throws IllegalArgumentException unless
-     *                                  both {@code 0 <= p < n} and {@code 0 <= q < n}
+     * @throws IllegalArgumentException unless both {@code 0 <= p < n} and
+     * {@code 0 <= q < n}
      */
     public void union(int p, int q) {
         // CONSIDER can we avoid doing find again?
@@ -132,10 +139,10 @@ public class UF_HWQUPC implements UF {
 
     @Override
     public String toString() {
-        return "UF_HWQUPC:" + "\n  count: " + count +
-                "\n  path compression? " + pathCompression +
-                "\n  parents: " + Arrays.toString(parent) +
-                "\n  heights: " + Arrays.toString(height);
+        return "UF_HWQUPC:" + "\n  count: " + count
+                + "\n  path compression? " + pathCompression
+                + "\n  parents: " + Arrays.toString(parent)
+                + "\n  heights: " + Arrays.toString(height);
     }
 
     // validate that p is a valid index
@@ -171,14 +178,28 @@ public class UF_HWQUPC implements UF {
 
     private void mergeComponents(int i, int j) {
         // FIXME make shorter root point to taller one
+        if (height[j] > height[i]) {
+            parent[i] = j;
+            height[j] = height[j] + height[i];
+            height[i] = 0;
+        } else {
+            parent[j] = i;
+            height[i] = height[i] + height[j];
+            height[j] = 0;
+        }
+
         // END 
     }
 
     /**
-     * This implements the single-pass path-halving mechanism of path compression
+     * This implements the single-pass path-halving mechanism of path
+     * compression
      */
     private void doPathCompression(int i) {
         // FIXME update parent to value of grandparent
-        // END 
+        if (this.pathCompression) {
+            parent[i] = parent[parent[i]];
+        }
+// END 
     }
 }
