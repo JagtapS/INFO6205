@@ -12,6 +12,7 @@ import java.util.Arrays;
  *
  * @param <X> the underlying comparable type.
  */
+
 public class MergeSort<X extends Comparable<X>> extends SortWithHelper<X> {
 
     public static final String DESCRIPTION = "MergeSort";
@@ -65,8 +66,21 @@ public class MergeSort<X extends Comparable<X>> extends SortWithHelper<X> {
         }
 
         // FIXME : implement merge sort with insurance and no-copy optimizations
+        int mid = from + (to - from) / 2;
+        
+        checkNoCopy(a,aux,from,to,insurance,mid,helper,noCopy);    
+        
         // END 
     }
+    
+    private void checkNoCopy(X[] a, X[] aux, int from, int to,boolean insurance,int mid,final Helper<X> helper,boolean noCopy) {
+   	 if (noCopy) {
+            isNoCopy(a,aux,from,to,insurance,mid,helper);
+
+        } else {
+        	isNotNoCopy(a,aux,from,to,insurance,mid,helper);
+        }
+   }
 
     // CONSIDER combine with MergeSortBasic perhaps.
     private void merge(X[] sorted, X[] result, int from, int mid, int to) {
@@ -86,6 +100,42 @@ public class MergeSort<X extends Comparable<X>> extends SortWithHelper<X> {
     public static final String NOCOPY = "nocopy";
     public static final String INSURANCE = "insurance";
 
+    
+    
+private void isNoCopy(X[] a, X[] aux, int from, int to,boolean insurance,int mid,final Helper<X> helper){
+    	
+   	 	sort(aux, a, from, mid);
+        sort(aux, a, mid, to);
+
+        if (insurance && helper.less(a[mid - 1], a[mid])) {
+            return;
+        }
+
+        if (helper.less(a[mid], a[mid - 1])) {
+            for (int i = from; i < to; i++) {
+                aux[i] = a[i];
+            }
+            merge(aux, a, from, mid, to);
+        }
+   }
+    
+    private void isNotNoCopy(X[] a, X[] aux, int from, int to,boolean insurance,int mid,final Helper<X> helper){
+    	
+    	   sort(a, aux, from, mid);
+           sort(a, aux, mid, to);
+
+           if (insurance && helper.less(a[mid - 1], a[mid])) {
+               return;
+           }
+
+           if (helper.less(a[mid], a[mid - 1])) {
+               System.arraycopy(a, from, aux, from, to - from);
+               merge(aux, a, from, mid, to);
+           }
+      }
+    
+    
+    
     private static String getConfigString(Config config) {
         StringBuilder stringBuilder = new StringBuilder();
         if (config.getBoolean(MERGESORT, INSURANCE)) stringBuilder.append(" with insurance comparison");
